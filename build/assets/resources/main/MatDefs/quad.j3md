@@ -1,0 +1,10 @@
+MaterialDef Solid Color {
+    MaterialParameters {
+        Vector4 Color
+        Matrix4 proj
+    }
+    Technique {
+        VertexShader GLSL100:   Shaders/quad.vert
+        FragmentShader GLSL100: Shaders/quad.frag
+    }
+}
