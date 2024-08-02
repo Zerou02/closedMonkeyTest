@@ -1,6 +1,6 @@
 MaterialDef Solid Color {
     MaterialParameters {
-        Vector4 Color
+        Vector4 colour
         Matrix4 proj
     }
     Technique {

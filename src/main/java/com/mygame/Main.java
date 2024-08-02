@@ -1,16 +1,24 @@
 package com.mygame;
 
+import java.io.IOException;
+
 import com.jme3.app.SimpleApplication;
+import com.jme3.input.MouseInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.math.Vector2f;
-import com.jme3.math.Vector4f;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.network.Client;
+import com.jme3.network.Network;
+import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
+import com.mygame.messages.SetColourMessage;
 
 public class Main extends SimpleApplication {
 
-  Quad testQuad;
-  Vector2f vel = new Vector2f(10, 10);
-  float speed = 10.0f;
+  Slider slider;
+  Client client;
+  ColourPicker picker;
+  GameState state;
 
   public static void main(String[] args) {
 
@@ -19,6 +27,7 @@ public class Main extends SimpleApplication {
     var settings = new AppSettings(true);
     float ww = 800;
     float wh = 600;
+    Factory.screenSize = new Vector2f(800, 600);
     settings.setResolution((int) ww, (int) wh);
     app.settings = settings;
 
@@ -33,32 +42,49 @@ public class Main extends SimpleApplication {
 
   @Override
   public void simpleInitApp() {
+    Factory.root = rootNode;
     Factory.manager = assetManager;
-    Factory.ortho2DProj = Utils.calc2DProjMat(800, 600);
+    Factory.ortho2DProj = Utils.calc2DProjMat(Factory.screenSize.x, Factory.screenSize.y);
+    this.state = new GameState();
 
-    this.testQuad = Factory.createQuad(new Vector4f(0, 0, 100, 100));
+    this.slider = new Slider();
+    this.picker = new ColourPicker(new Vector2f(100, 200));
+    try {
+      client = Network.connectToServer("localhost", 6969);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    client.addMessageListener(new ClientListener(state), SetColourMessage.class);
+    client.start();
 
-    rootNode.attachChild(testQuad.quad);
+    initKeys();
+  }
+
+  private ActionListener actionListener = new ActionListener() {
+    @Override
+    public void onAction(String name, boolean keyPressed, float delta) {
+      if (name.equals("LeftClick")) {
+        slider.handleLeftClick();
+        picker.handleLeftClick(client);
+      }
+    }
+  };
+
+  @Override
+  public void simpleRender(RenderManager r) {
+    this.slider.render(r);
+  }
+
+  private void initKeys() {
+    inputManager.addMapping("LeftClick", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+    inputManager.addListener(actionListener, "LeftClick");
   }
 
   @Override
   public void simpleUpdate(float delta) {
-    var newPos = testQuad.dim.add(new Vector4f(vel.x * delta * speed, vel.y * delta * speed, 0, 0));
-    if (newPos.x + testQuad.dim.z > 800 || newPos.x < 0) {
-      vel.x *= -1;
-    }
-    if (newPos.y < 0 || newPos.y + testQuad.dim.w > 600) {
-      vel.y *= -1;
-    }
-    testQuad.move(vel.x, vel.y);
+    Utils.ssMousePos = Utils.CartesianToSS(inputManager.getCursorPosition());
+    inputManager.setCursorVisible(true);
+    this.slider.knob.setColour(state.sliderColour);
   }
 
-  public void printBuffer(VertexBuffer buffer) {
-    for (int i = 0; i < buffer.getNumElements(); i++) {
-      for (int j = 0; j < buffer.getNumComponents(); j++) {
-        System.out.print(buffer.getElementComponent(i, j) + ",");
-      }
-      System.err.println();
-    }
-  }
 }
