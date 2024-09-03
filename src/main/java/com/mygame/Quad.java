@@ -28,7 +28,7 @@ public class Quad {
 
         mat.setColor("colour", new ColorRGBA(colour));
         mat.setMatrix4("proj", this.projMat);
-        System.out.println(this.projMat);
+
         quad.setMaterial(mat);
         parent.attachChild(quad);
 

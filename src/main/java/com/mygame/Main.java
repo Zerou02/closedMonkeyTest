@@ -42,6 +42,9 @@ public class Main extends SimpleApplication {
 
   @Override
   public void simpleInitApp() {
+
+    this.cam.setProjectionMatrix(null);
+    cam.setParallelProjection(true);
     Factory.root = rootNode;
     Factory.manager = assetManager;
     Factory.ortho2DProj = Utils.calc2DProjMat(Factory.screenSize.x, Factory.screenSize.y);
@@ -73,6 +76,7 @@ public class Main extends SimpleApplication {
   @Override
   public void simpleRender(RenderManager r) {
     this.slider.render(r);
+    picker.render(r);
   }
 
   private void initKeys() {

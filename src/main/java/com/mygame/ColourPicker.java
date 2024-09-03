@@ -4,6 +4,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector4f;
 import com.jme3.network.Client;
+import com.jme3.renderer.RenderManager;
 import com.mygame.messages.SetColourMessage;
 
 public class ColourPicker {
@@ -34,4 +35,11 @@ public class ColourPicker {
             }
         }
     }
+
+    public void render(RenderManager r) {
+        for (Quad quads : this.quads) {
+            quads.render(r);
+        }
+    }
+
 }
