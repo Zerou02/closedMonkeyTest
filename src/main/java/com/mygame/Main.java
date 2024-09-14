@@ -92,6 +92,6 @@ public class Main extends SimpleApplication {
 
     // Am Ende aufrufen
     ctx.process();
-    // glfw.pollEvents()
+    // glfw.pollEvents() oder sowas wird wohl hier passieren
   }
 }
