@@ -3,14 +3,16 @@ package com.mygame;
 import java.io.IOException;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.input.MouseInput;
-import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
+import com.jme3.math.Vector4f;
 import com.jme3.network.Client;
 import com.jme3.network.Network;
 import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
+import com.mygame.Monkey2D.Context2D;
+import com.mygame.Monkey2D.Image2D;
+import com.mygame.Monkey2D.Keycodes;
 import com.mygame.messages.SetColourMessage;
 
 public class Main extends SimpleApplication {
@@ -19,6 +21,8 @@ public class Main extends SimpleApplication {
   Client client;
   ColourPicker picker;
   GameState state;
+  Image2D picture;
+  Context2D ctx;
 
   public static void main(String[] args) {
 
@@ -27,68 +31,67 @@ public class Main extends SimpleApplication {
     var settings = new AppSettings(true);
     float ww = 800;
     float wh = 600;
-    Factory.screenSize = new Vector2f(800, 600);
+
     settings.setResolution((int) ww, (int) wh);
     app.settings = settings;
 
     app.showSettings = false;
-
     app.setDisplayStatView(false);
-
     app.start();
 
-    System.out.println(app.assetManager);
   }
 
   @Override
   public void simpleInitApp() {
+    this.ctx = new Context2D(new Vector2f(800, 600), this.assetManager, this.inputManager);
 
-    this.cam.setProjectionMatrix(null);
-    cam.setParallelProjection(true);
-    Factory.root = rootNode;
-    Factory.manager = assetManager;
-    Factory.ortho2DProj = Utils.calc2DProjMat(Factory.screenSize.x, Factory.screenSize.y);
     this.state = new GameState();
+    this.picture = ctx.createImage(new Vector4f(300, 300, 100, 100), ColorRGBA.Red);
+    this.slider = new Slider(this.ctx);
 
-    this.slider = new Slider();
-    this.picker = new ColourPicker(new Vector2f(100, 200));
     try {
       client = Network.connectToServer("localhost", 6969);
+      this.picker = new ColourPicker(new Vector2f(100, 200), this.ctx, client);
     } catch (IOException e) {
       e.printStackTrace();
     }
     client.addMessageListener(new ClientListener(state), SetColourMessage.class);
     client.start();
 
-    initKeys();
   }
-
-  private ActionListener actionListener = new ActionListener() {
-    @Override
-    public void onAction(String name, boolean keyPressed, float delta) {
-      if (name.equals("LeftClick")) {
-        slider.handleLeftClick();
-        picker.handleLeftClick(client);
-      }
-    }
-  };
 
   @Override
   public void simpleRender(RenderManager r) {
     this.slider.render(r);
-    picker.render(r);
-  }
-
-  private void initKeys() {
-    inputManager.addMapping("LeftClick", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-    inputManager.addListener(actionListener, "LeftClick");
+    this.picker.render(r);
+    this.picture.render(r);
   }
 
   @Override
   public void simpleUpdate(float delta) {
-    Utils.ssMousePos = Utils.CartesianToSS(inputManager.getCursorPosition());
     inputManager.setCursorVisible(true);
-    this.slider.knob.setColour(state.sliderColour);
-  }
+    if (ctx.isKeyPressed(Keycodes.ESCAPE)) {
+      this.stop();
+    }
+    var speed = 100.0f;
+    if (ctx.isKeyDown(Keycodes.W)) {
+      this.picture.move(0, -delta * speed);
+    }
+    if (ctx.isKeyDown(Keycodes.S)) {
+      this.picture.move(0, delta * speed);
+    }
+    if (ctx.isKeyDown(Keycodes.D)) {
+      this.picture.move(delta * speed, 0);
+    }
+    if (ctx.isKeyDown(Keycodes.A)) {
+      this.picture.move(-delta * speed, 0);
+    }
+    this.slider.process();
+    this.picker.process();
+    this.slider.setColour(state.sliderColour);
 
+    // Am Ende aufrufen
+    ctx.process();
+    // glfw.pollEvents()
+  }
 }
