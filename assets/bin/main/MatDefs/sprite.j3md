@@ -1,0 +1,10 @@
+MaterialDef Image {
+    MaterialParameters {
+        Matrix4 proj
+        Texture2D tex;
+    }
+    Technique {
+        VertexShader GLSL100:   Shaders/sprite.vert
+        FragmentShader GLSL100: Shaders/sprite.frag
+    }
+}

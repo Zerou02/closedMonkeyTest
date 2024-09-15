@@ -16,10 +16,11 @@ public class InputListener implements RawInputListener {
     private HashMap<Integer, Boolean> keysDown = new HashMap<Integer, Boolean>();
     private ArrayList<Integer> keysThisFramePressed = new ArrayList<Integer>();
 
-    private final int mouseBtnOffset;
+    private final int[] mouseBtnOffsets;
 
     public InputListener() {
-        this.mouseBtnOffset = Keycodes.LEFT_MOUSE_BUTTON.getKeyCode();
+        this.mouseBtnOffsets = new int[] { Keycodes.LEFT_MOUSE_BUTTON.getKeyCode(),
+                Keycodes.RIGHT_MOUSE_BUTTON.getKeyCode() };
     }
 
     @Override
@@ -51,10 +52,14 @@ public class InputListener implements RawInputListener {
 
     @Override
     public void onMouseButtonEvent(MouseButtonEvent ev) {
-        if (ev.isPressed()) {
-            this.keysThisFramePressed.add(ev.getButtonIndex() + mouseBtnOffset);
+        if (ev.getButtonIndex() >= 2) {
+            return;
         }
-        keysDown.put(ev.getButtonIndex() + mouseBtnOffset, ev.isPressed());
+        var mouseIdx = this.mouseBtnOffsets[ev.getButtonIndex()];
+        if (ev.isPressed()) {
+            this.keysThisFramePressed.add(mouseIdx);
+        }
+        keysDown.put(mouseIdx, ev.isPressed());
     }
 
     @Override

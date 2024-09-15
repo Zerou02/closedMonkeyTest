@@ -16,8 +16,8 @@ public class Slider {
 
     public Slider(Context2D ctx) {
         this.ctx = ctx;
-        this.bg = this.ctx.createQuad(new Vector4f(300, 100, 300, 10), new ColorRGBA(0, 1, 1, 1f));
-        this.knob = this.ctx.createQuad(new Vector4f(300, 100, 20, 10), new ColorRGBA(1, 1, 1, 1f));
+        this.bg = this.ctx.createQuad(new Vector4f(300, 100, 300, 10), new ColorRGBA(0.25f, 0.25f, 0.25f, 1f));
+        this.knob = this.ctx.createQuad(new Vector4f(500, 100, 20, 10), new ColorRGBA(1, 1, 1, 1f));
     }
 
     public void render(RenderManager r) {
@@ -44,6 +44,15 @@ public class Slider {
 
     public void setColour(ColorRGBA c) {
         this.knob.setColour(c);
+    }
+
+    public float getPercentage() {
+        var baseX = this.bg.getDim().x;
+        var rightMostX = this.bg.getDim().x + this.bg.getDim().z;
+        var knobX = this.knob.getDim().x;
+        var knobAdjusted = knobX - baseX;
+        var rightAdjusted = rightMostX - baseX;
+        return knobAdjusted / rightAdjusted;
     }
 
 }

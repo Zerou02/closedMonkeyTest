@@ -31,8 +31,8 @@ public class Context2D {
         return new Quad2D(dim, this.assetManager, this.ortho2DProj, colour);
     }
 
-    public Image2D createImage(Vector4f dim, ColorRGBA colour) {
-        return new Image2D(dim, this.assetManager, this.ortho2DProj, colour);
+    public Sprite2D createSprite(Vector4f dim) {
+        return new Sprite2D(dim, this.assetManager, this.ortho2DProj);
     }
 
     public Matrix4f calc2DProjMat(float ww, float wh) {

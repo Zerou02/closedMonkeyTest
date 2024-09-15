@@ -1,5 +1,3 @@
-uniform vec4 m_colour;
-
 uniform sampler2D m_tex;
 in vec2 fTexCoord;
 

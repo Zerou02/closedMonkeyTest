@@ -10,21 +10,22 @@ import com.jme3.math.Vector4f;
 import com.jme3.scene.VertexBuffer.Type;
 
 public class Quad2D extends Comp2D {
+    private ColorRGBA colour;
+
     public Quad2D(Vector4f dim, AssetManager manager, Matrix4f proj, ColorRGBA colour) {
-        super(dim, manager, proj, colour);
+        super(dim, manager, proj);
+        this.colour = colour;
+        this.geometry.setMaterial(createMaterial());
+        this.setVertices();
+    }
 
-        var mesh = new com.jme3.scene.shape.Quad(dim.z, dim.w);
-        this.clearBuffer(mesh);
-        super.setMesh(mesh);
-
+    private Material createMaterial() {
         Material mat = new Material(manager, "MatDefs/quad.j3md");
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
         mat.getAdditionalRenderState().setDepthWrite(false);
         mat.setColor("colour", new ColorRGBA(colour));
         mat.setMatrix4("proj", this.projMat);
-        super.setMaterial(mat);
-
-        this.setVertices();
+        return mat;
     }
 
     @Override
@@ -34,7 +35,7 @@ public class Quad2D extends Comp2D {
         var rightUp = new Vector2f(dim.x + dim.z, dim.y);
         var rightDown = new Vector2f(dim.x + dim.z, dim.y + dim.w);
         // ccw order
-        getMesh().setBuffer(Type.Position, 2,
+        geometry.getMesh().setBuffer(Type.Position, 2,
                 new float[] {
                         leftUp.x, leftUp.y, // links oben
                         rightDown.x, rightDown.y, // rechts unten

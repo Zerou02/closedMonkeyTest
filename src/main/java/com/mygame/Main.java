@@ -11,7 +11,7 @@ import com.jme3.network.Network;
 import com.jme3.renderer.RenderManager;
 import com.jme3.system.AppSettings;
 import com.mygame.Monkey2D.Context2D;
-import com.mygame.Monkey2D.Image2D;
+import com.mygame.Monkey2D.Sprite2D;
 import com.mygame.Monkey2D.Keycodes;
 import com.mygame.messages.SetColourMessage;
 
@@ -21,8 +21,8 @@ public class Main extends SimpleApplication {
   Client client;
   ColourPicker picker;
   GameState state;
-  Image2D picture;
   Context2D ctx;
+  SpriteHit60 spriteHit;
 
   public static void main(String[] args) {
 
@@ -46,8 +46,8 @@ public class Main extends SimpleApplication {
     this.ctx = new Context2D(new Vector2f(800, 600), this.assetManager, this.inputManager);
 
     this.state = new GameState();
-    this.picture = ctx.createImage(new Vector4f(300, 300, 100, 100), ColorRGBA.Red);
     this.slider = new Slider(this.ctx);
+    spriteHit = new SpriteHit60(ctx);
 
     try {
       client = Network.connectToServer("localhost", 6969);
@@ -64,7 +64,7 @@ public class Main extends SimpleApplication {
   public void simpleRender(RenderManager r) {
     this.slider.render(r);
     this.picker.render(r);
-    this.picture.render(r);
+    this.spriteHit.render(r);
   }
 
   @Override
@@ -73,19 +73,8 @@ public class Main extends SimpleApplication {
     if (ctx.isKeyPressed(Keycodes.ESCAPE)) {
       this.stop();
     }
-    var speed = 100.0f;
-    if (ctx.isKeyDown(Keycodes.W)) {
-      this.picture.move(0, -delta * speed);
-    }
-    if (ctx.isKeyDown(Keycodes.S)) {
-      this.picture.move(0, delta * speed);
-    }
-    if (ctx.isKeyDown(Keycodes.D)) {
-      this.picture.move(delta * speed, 0);
-    }
-    if (ctx.isKeyDown(Keycodes.A)) {
-      this.picture.move(-delta * speed, 0);
-    }
+    this.spriteHit.setSpeedModifier(this.slider.getPercentage());
+    this.spriteHit.process(delta);
     this.slider.process();
     this.picker.process();
     this.slider.setColour(state.sliderColour);
